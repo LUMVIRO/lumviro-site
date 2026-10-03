@@ -9,6 +9,17 @@
   const play = document.querySelector('#demo-play');
   const full = document.querySelector('#demo-fullscreen');
   const status = document.querySelector('#demo-status');
+  const menu = document.querySelector('#mode-menu');
+  const editor = document.querySelector('#mode-editor');
+  const back = document.querySelector('#mode-back');
+  const motion = document.querySelector('#demo-motion');
+  const style = document.querySelector('#demo-style');
+  const background = document.querySelector('#demo-background');
+  let activeMode = null, origin = null, pulseTime = 0;
+  const drafts = {
+    love: {text:'I LOVE YOU ♥', color:'#ff86ce', background:'#170d22', motion:'pulse', style:'led', speed:'110'},
+    note: {text:'BACK IN 5 MIN', color:'#ffffff', background:'#02040a', motion:'static', style:'plain', speed:'110'}
+  };
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const ink = document.createElement('canvas');
   const pen = ink.getContext('2d');
@@ -27,8 +38,8 @@
     fontSize = Math.min(h * .54, 190);
     pen.font = `800 ${fontSize}px system-ui, sans-serif`;
     textWidth = pen.measureText(message()).width;
-    if (paused && textWidth > w - 32) {
-      fontSize *= Math.max(1, w - 32) / textWidth;
+    if ((paused || motion.value !== 'scroll') && textWidth > w - 40) {
+      fontSize *= Math.max(1, w - 40) / textWidth;
       pen.font = `800 ${fontSize}px system-ui, sans-serif`;
       textWidth = pen.measureText(message()).width;
     }
@@ -46,32 +57,73 @@
     measure(true); draw();
   }
   function draw() {
-    ctx.clearRect(0, 0, w, h); ctx.fillStyle = unlit; ctx.fillRect(0, 0, w, h);
+    ctx.clearRect(0, 0, w, h); ctx.fillStyle = background.value; ctx.fillRect(0, 0, w, h);
+    if (style.value === 'led') { ctx.fillStyle = unlit; ctx.fillRect(0, 0, w, h); }
     pen.clearRect(0, 0, w, h); pen.globalCompositeOperation = 'source-over';
     pen.font = `800 ${fontSize}px system-ui, sans-serif`;
-    pen.textBaseline = 'middle'; pen.fillStyle = '#fff';
-    pen.fillText(message(), x, h / 2);
-    pen.globalCompositeOperation = 'source-in'; pen.fillStyle = dots; pen.fillRect(0, 0, w, h);
+    pen.textBaseline = 'middle'; pen.fillStyle = color.value;
+    const pos = motion.value === 'scroll' && !paused ? x : (w - textWidth) / 2;
+    pen.fillText(message(), pos, h / 2);
+    if (style.value === 'led') {
+      pen.globalCompositeOperation = 'source-in'; pen.fillStyle = dots; pen.fillRect(0, 0, w, h);
+    }
     pen.globalCompositeOperation = 'source-over';
-    ctx.shadowColor = color.value; ctx.shadowBlur = 7;
-    ctx.drawImage(ink, 0, 0, w, h); ctx.shadowBlur = 0;
+    ctx.shadowColor = color.value; ctx.shadowBlur = style.value === 'led' ? 7 : 0;
+    ctx.globalAlpha = motion.value === 'pulse' && !paused ? .90 + .10 * Math.sin(pulseTime) : 1;
+    ctx.drawImage(ink, 0, 0, w, h); ctx.shadowBlur = 0; ctx.globalAlpha = 1;
   }
   function tick(now) {
     frame = 0;
     const dt = last ? Math.min((now - last) / 1000, .05) : 0; last = now;
-    x -= Number(speed.value) * dt;
+    pulseTime += dt * Number(speed.value) / 55;
+    if (motion.value === 'scroll') x -= Number(speed.value) * dt;
     if (x + textWidth < 0) x = w;
     draw(); schedule();
   }
   function schedule() {
-    if (!paused && visible && !document.hidden && !frame) frame = requestAnimationFrame(tick);
+    if (activeMode && motion.value !== 'static' && !paused && visible && !document.hidden && !frame) frame = requestAnimationFrame(tick);
   }
   function sync() {
     cancelAnimationFrame(frame); frame = 0; last = 0;
+    play.hidden = motion.value === 'static';
+    document.querySelector('#speed-control').hidden = motion.value === 'static';
     play.textContent = paused ? 'Play' : 'Pause';
     play.setAttribute('aria-pressed', String(paused));
     draw(); schedule();
   }
+  function saveDraft() {
+    if (activeMode) drafts[activeMode] = {text:input.value, color:color.value,
+      background:background.value, motion:motion.value, style:style.value, speed:speed.value};
+  }
+  document.querySelectorAll('[data-mode].scenario').forEach(card => card.addEventListener('click', () => {
+    origin = card; activeMode = card.dataset.mode;
+    const d = drafts[activeMode];
+    input.value = d.text; color.value = d.color; background.value = d.background;
+    motion.value = d.motion; style.value = d.style; speed.value = d.speed;
+    paused = reduced.matches; pulseTime = 0;
+    menu.hidden = true; document.querySelector('#scenario-caption').hidden = true;
+    editor.hidden = false; editor.dataset.mode = activeMode;
+    document.querySelector('#mode-title').textContent = activeMode === 'love' ? '♥ Love' : 'Leave a message';
+    document.querySelector('#mode-tip').textContent = activeMode === 'love'
+      ? 'Make it personal: try a name, a greeting, or a message for someone special.'
+      : 'Your note is visible to everyone nearby. This demo does not lock your phone. Keep it out of heat and direct sunlight.';
+    canvas.setAttribute('aria-label', 'Message preview: ' + message());
+    resize(); sync(); back.focus();
+    editor.scrollIntoView({block:'start', behavior:'instant'});
+  }));
+  back.addEventListener('click', () => {
+    saveDraft(); activeMode = null; sync(); editor.hidden = true; menu.hidden = false;
+    document.querySelector('#scenario-caption').hidden = false;
+    origin?.focus();
+  });
+  [motion, style, background].forEach(control => control.addEventListener('change', () => {
+    if (control === background) {
+      if (background.value === '#f5f2e9') color.value = '#18202b';
+      else if (color.value === '#18202b') color.value = '#ffffff';
+      dots = pattern(color.value, 2.8);
+    }
+    measure(true); sync();
+  }));
   input.addEventListener('input', () => {
     canvas.setAttribute('aria-label', 'LED message: ' + message()); measure(true); draw();
   });
@@ -83,7 +135,7 @@
   new ResizeObserver(resize).observe(canvas);
   function expanded() { return document.fullscreenElement === stage || stage.classList.contains('expanded'); }
   function syncFullscreen() {
-    full.textContent = expanded() ? 'Exit fullscreen ✕' : 'Fullscreen ↗';
+    full.textContent = expanded() ? 'Exit fullscreen ✕' : 'Show fullscreen ↗';
     full.setAttribute('aria-expanded', String(expanded()));
     resize();
   }
@@ -106,8 +158,8 @@
   document.addEventListener('keydown', event => {
     if (event.key === 'Escape' && stage.classList.contains('expanded')) closeFallback();
     if (event.key === 'Tab' && stage.classList.contains('expanded')) {
-      if (event.shiftKey && document.activeElement === play) { event.preventDefault(); full.focus(); }
-      else if (!event.shiftKey && document.activeElement === full) { event.preventDefault(); play.focus(); }
+      if (event.shiftKey && document.activeElement === (play.hidden ? full : play)) { event.preventDefault(); full.focus(); }
+      else if (!event.shiftKey && document.activeElement === full) { event.preventDefault(); (play.hidden ? full : play).focus(); }
     }
   });
   const dialog = document.querySelector('#screenshot-dialog');
