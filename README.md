@@ -1,11 +1,10 @@
 # Lumviro website
 
-Static English project/support site. No analytics, cookies, external fonts, or build dependencies.
+Public brand homepage for independent apps and games, hosted on GitHub Pages:
+https://lumviro.github.io/lumviro-site/
 
-Local preview: `python3 -m http.server 8080 --directory publishing/lumviro-site` from the application workspace.
+Bannerivo is the first app, currently preparing for Google Play. Android is the current focus; iOS and future apps/games are plans, not announced releases.
 
-Publish ONLY this directory in a separate public website repository. Never publish the application repository or release drafts as the website.
+Feedback, project ideas, support and collaboration links open email to lumviro@gmail.com. No form backend, analytics or email collection is installed. No production privacy policy is published yet.
 
-GitHub Pages: deploy the repository root from its main branch. A user site may use the repository name `lumviro.github.io` after the authenticated account login is verified. Otherwise use a project repository.
-
-Privacy policy is deliberately not linked or copied yet: the app privacy draft has unresolved release requirements. Finalize it, add a public HTML policy page, verify anonymous access, then update app and Console URLs. No store download link exists yet.
+Edit index.html and style.css. Keep future projects clearly labelled until released; add verified store links when available. Application source stays in a separate private repository.
