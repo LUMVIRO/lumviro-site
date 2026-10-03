@@ -8,3 +8,5 @@ Bannerivo is the first app, currently preparing for Google Play. Android is the 
 Feedback, project ideas, support and collaboration links open email to lumviro@gmail.com. No form backend, analytics or email collection is installed. No production privacy policy is published yet.
 
 Edit index.html and style.css. Keep future projects clearly labelled until released; add verified store links when available. Application source stays in a separate private repository.
+
+Bannerivo page includes a lightweight Canvas LED demonstration (message/color/speed/pause/fullscreen). It is a web illustration, not the Godot renderer. Text is local and unsaved; no network requests are made by the demo. Reduced-motion starts paused; offscreen/hidden pages stop animation. Native fullscreen has a fixed-overlay fallback. Screenshots open in a keyboard-dismissible dialog, with plain image links as no-JavaScript fallback.
