@@ -3,3 +3,6 @@
 
 /* Lifestyle gallery is editorial, not interactive app navigation. */
 .product-hero{padding-bottom:48px}.life-stories{margin-bottom:80px}.life-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}.life-card{margin:0;overflow:hidden;border:1px solid #49405f;border-radius:24px;background:linear-gradient(145deg,#1c1428,#101726);box-shadow:0 18px 45px #0002}.life-card img{display:block;width:100%;height:auto;aspect-ratio:3/2;object-fit:cover}.life-card figcaption{padding:27px 28px 30px}.life-card h3{font-size:26px;line-height:1.2;letter-spacing:-.025em;margin:14px 0}.life-card p{color:#c4c2d6;margin:0;font-size:16px}.life-card .life-tip{font-size:12px;color:#aaa9be;margin-top:16px}@media(max-width:700px){.life-grid{grid-template-columns:1fr;gap:22px}.life-stories{margin-bottom:48px}.life-card figcaption{padding:24px}.life-card h3{font-size:25px}.product-hero{padding-bottom:36px}}
+
+/* Two lead stories, followed by six compact scenes. */
+@media(min-width:1001px){.life-grid{grid-template-columns:repeat(6,minmax(0,1fr))}.life-card{grid-column:span 2}.life-card:nth-child(-n+2){grid-column:span 3}.life-card:nth-child(n+3) figcaption{padding:22px}.life-card:nth-child(n+3) h3{font-size:22px}.life-card:nth-child(n+3) p{font-size:15px}}
