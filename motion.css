@@ -1,0 +1,19 @@
+/* Original CSS effects: no external scripts, fonts or animation packages. */
+nav a { position: relative; padding-bottom: 5px; }
+nav a::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: linear-gradient(90deg,#77dfff,#b78cff); transform: scaleX(0); transform-origin: left; transition: transform .2s ease; }
+nav a:hover::after, nav a:focus-visible::after { transform: scaleX(1); }
+.button { transition: transform .2s ease, background .2s ease, box-shadow .2s ease; }
+.button:active { transform: translateY(1px); }
+.life-card, .showcase, .grid article { transition: border-color .25s ease, box-shadow .25s ease; }
+.life-card img { transition: transform .55s cubic-bezier(.2,.7,.2,1); }
+.life-card figcaption { position: relative; background: #141626; }
+.product-hero { background: radial-gradient(ellipse at 50% 35%,#7354ef16,transparent 65%); }
+@media(hover:hover) and (pointer:fine) {
+  .button:hover { transform: translateY(-2px); box-shadow: 0 8px 26px #7154f538; }
+  .life-card:hover, .showcase:hover, .grid article:hover { border-color: #9380c3; box-shadow: 0 12px 32px #0003; }
+  .life-card:hover img { transform: scale(1.025); }
+}
+@media(prefers-reduced-motion:reduce) {
+  nav a::after, .button, .life-card, .life-card img, .showcase, .grid article { transition: none; }
+  .button:hover, .button:active, .life-card:hover img { transform: none; }
+}
